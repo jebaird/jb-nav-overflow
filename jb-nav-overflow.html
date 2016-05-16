@@ -28,10 +28,14 @@
     jb-nav-overflow {
         display: block;
     }
-    jb-nav-overflow .jb-nav-overflow__items {
+    
+    .jb-nav-overflow__items {
         overflow: hidden;
     }
 
+    .jb-nav-overflow__secondary_nav__handle {
+        visibility: hidden;
+    }
 
 </style>
 
@@ -172,9 +176,6 @@
 
         }
 
-        // don't need to see this while we figure out if and when we need to show it
-        //_handle.style.display = 'none';
-
         for ( ; l > i; i++ ) {
             item = items [ i ];
 
@@ -209,6 +210,7 @@
 
                 //append to handle
                 _handle.appendChild( secondaryNav );
+                _handle.style.visibility = 'visible';
 
                 break;
             }
@@ -216,6 +218,7 @@
         }
 
         this.removeAttribute('refreshing' );
+
 
         // watch for changes
         this._resizeObserver.observe( this, observerConfig );
