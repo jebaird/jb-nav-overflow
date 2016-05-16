@@ -176,6 +176,9 @@
 
         }
 
+        // default to our stylesheet
+        _handle.style.visibility = "";
+
         for ( ; l > i; i++ ) {
             item = items [ i ];
 
@@ -190,12 +193,9 @@
             // best guess if the next item can fit on the first row of items with the more item
             if ( itemsWidth - handleWidth <= handleWidth ) {
 
-                
+                // insert the handle before the last visible item
                 _handle.parentNode.insertBefore( _handle, items[ i - 1] );
 
-                console.log( i )
-                // remove secondary nav if there is one
-                
                 var secondaryNav = _getSecondaryNavTemplate.call( this ),
                     secondaryUl = secondaryNav.querySelector('ul'),
                     appendToSecondary = Array.prototype.slice.call( items, i, items.length );
@@ -218,7 +218,6 @@
         }
 
         this.removeAttribute('refreshing' );
-
 
         // watch for changes
         this._resizeObserver.observe( this, observerConfig );
