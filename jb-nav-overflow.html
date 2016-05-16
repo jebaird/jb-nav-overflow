@@ -1,0 +1,229 @@
+<!--
+    
+    jb-nav-overflow
+        A custom element that places "hidden" items in a menu
+
+    Copyright 2016, Jesse Baird <jebaird@gmail.com> jebaird.com
+    licensed under the MIT 
+
+
+    Order of events 
+
+        get the secondary handle width,
+        get the first items height, set the height of the primary ul
+        get the index of children that are not on the first line
+
+        issue refreshed event ?
+            
+        call setOverflow on
+            * window resize?
+            * content changed
+            * child appended 
+
+    
+-->
+
+<style id="jb-nav-overflow-style">
+
+    jb-nav-overflow {
+        display: block;
+    }
+    jb-nav-overflow .jb-nav-overflow__items {
+        overflow: hidden;
+    }
+
+
+</style>
+
+
+<!-- 
+    This template can be "overriden " by prodving the following a template tag with the class of jb "b-nav-overflow__secondary_nav__template"
+    in the root of this element
+    
+    IE
+
+    <jb-nav-overflow>
+
+        <template class="jb-nav-overflow__secondary_nav__template">
+            <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>
+        </template> 
+    <jb-nav-overflow>
+-->
+<template id="jb-nav-overflow-template">
+    <nav class="jb-nav-overflow__secondary_nav"><ul></ul></nav>
+</template>
+
+
+<script>
+(function() {
+
+    // if the browser is using the webcompoents pollyfill we should look for document._currentScript
+    var _currentScript = document._currentScript || document.currentScript;
+
+
+    // Creates an object based in the HTML Element prototype
+    var element = Object.create(HTMLElement.prototype),
+
+        _getSecondaryNavTemplate = function(){
+            
+            //look for template override in this element
+            var template = this.querySelector('.jb-nav-overflow__secondary_nav__template');
+
+            if ( !template ) {
+                template =  _currentScript.ownerDocument.querySelector( '#jb-nav-overflow-template' );
+            }
+
+
+            return _currentScript.ownerDocument.importNode( template.content, true );
+        },
+        _getHandle = function(){
+
+            return this.querySelector('.jb-nav-overflow__secondary_nav__handle');
+        },
+
+        observerConfig = {
+            childList: true, 
+            characterData: true,
+            subtree: true
+        }
+
+    // Fires when an instance of the element is created
+    element.createdCallback = function() {
+
+
+        this._resizeObserver = new MutationObserver(function(){
+            this.setOverflow()
+        }.bind(this));
+
+
+    };
+
+    // Fires when an instance was inserted into the document
+    element.attachedCallback = function() {
+
+
+         // has to be on a delay, otherwise the client height will be reported as 0
+        setTimeout( function(){
+            this.setOverflow();
+
+
+        }.bind( this ),100)
+    };
+
+    // Fires when an instance was removed from the document
+    element.detachedCallback = function() {
+
+        if ( this._resizeObserver ){
+
+            this._resizeObserver.disconnect();
+        }
+    };
+
+    // Fires when an attribute was added, removed, or updated
+    element.attributeChangedCallback = function(attr, oldVal, newVal) {};
+
+
+
+    element.setOverflow = function(){
+        
+        
+        this.setAttribute('refreshing', '')
+
+        // since we observe the substree, disconnect so we don't recursively  call this method
+        if ( this._resizeObserver ){
+
+            this._resizeObserver.disconnect();
+        }
+
+
+        // set the height on the element, so only the items in the first row show up
+        this.querySelector( '.jb-nav-overflow__items' ).style.height = ( this.querySelector('li').clientHeight ) +'px'; 
+        
+
+        var _handle = _getHandle.call( this ),
+            handleWidth = _handle.clientWidth,
+
+            // should be <UL>
+            itemsWidth = _handle.parentNode.clientWidth,
+            items = _handle.parentNode.children,
+            l = items.length,
+            i = 0,
+            item;
+
+
+        // get all of the items in the secondary and append them to the primary
+        
+        var secondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav');
+
+        if ( secondaryNav ) {
+
+            var secondaryItems = Array.prototype.slice.call( secondaryNav.querySelector('ul').children, 0 )
+                docFrag = document.createDocumentFragment();
+                item;
+
+            
+            while ( item = secondaryItems.shift () ) {
+                docFrag.appendChild( item )
+            }
+
+            secondaryNav.parentNode.removeChild( secondaryNav );
+
+            _handle.parentNode.appendChild( docFrag );
+
+        }
+
+        // don't need to see this while we figure out if and when we need to show it
+        //_handle.style.display = 'none';
+
+        for ( ; l > i; i++ ) {
+            item = items [ i ];
+
+            // don't count it in
+            if ( item.classList.contains( "jb-nav-overflow__secondary_nav__handle" ) == true ) {
+                
+                continue;
+            }
+
+            itemsWidth -= item.clientWidth;
+
+            // best guess if the next item can fit on the first row of items with the more item
+            if ( itemsWidth - handleWidth <= handleWidth ) {
+
+                
+                _handle.parentNode.insertBefore( _handle, items[ i - 1] );
+
+                console.log( i )
+                // remove secondary nav if there is one
+                
+                var secondaryNav = _getSecondaryNavTemplate.call( this ),
+                    secondaryUl = secondaryNav.querySelector('ul'),
+                    appendToSecondary = Array.prototype.slice.call( items, i, items.length );
+                
+                while( item = appendToSecondary.shift() ) {
+                    if ( item ) {
+                        secondaryUl.appendChild( item )
+                        
+                    }
+                }
+                
+
+                //append to handle
+                _handle.appendChild( secondaryNav );
+
+                break;
+            }
+
+        }
+
+        this.removeAttribute('refreshing' );
+
+        // watch for changes
+        this._resizeObserver.observe( this, observerConfig );
+    }
+
+    // Registers custom element
+    document.registerElement('jb-nav-overflow', {
+        prototype: element
+    });
+}());
+</script>
