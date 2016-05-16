@@ -28,17 +28,15 @@
     jb-nav-overflow {
         display: block;
     }
-    
-    .jb-nav-overflow__items {
+
+    jb-nav-overflow["refreshing"], {
         overflow: hidden;
     }
 
+    jb-nav-overflow["refreshing"],
     .jb-nav-overflow__secondary_nav__handle {
         visibility: hidden;
-    }
 
-    .jb-nav-overflow__secondary_nav {
-        display: none;
     }
 
 </style>
@@ -84,9 +82,8 @@
 
             return _currentScript.ownerDocument.importNode( template.content, true );
         },
-        _getHandle = function(){
-
-            return this.querySelector('.jb-nav-overflow__secondary_nav__handle');
+        _isHandle = function( element ){
+            return element.classList.contains( "jb-nav-overflow__secondary_nav__handle" );
         },
 
         observerConfig = {
@@ -98,7 +95,7 @@
     // Fires when an instance of the element is created
     element.createdCallback = function() {
 
-
+        this.setAttribute('refreshing', '')
         this._resizeObserver = new MutationObserver(function(){
             this.setOverflow()
         }.bind(this));
@@ -148,25 +145,21 @@
         this.querySelector( '.jb-nav-overflow__items' ).style.height = ( this.querySelector('li').clientHeight ) +'px'; 
         
 
-        var _handle = _getHandle.call( this ),
+        var _handle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
+            oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
+            item,
+            lastOffsetTop = null,
             handleWidth = _handle.clientWidth,
-
-            // should be <UL>
-            itemsWidth = _handle.parentNode.clientWidth,
-            items = _handle.parentNode.children,
-            l = items.length,
-            i = 0,
-            item;
+            currentWidthLeft = _handle.parentNode.clientWidth - handleWidth; 
 
 
         // get all of the items in the secondary and append them to the primary
         
-        var secondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav');
 
-        if ( secondaryNav ) {
+        if ( oldSecondaryNav ) {
 
-            var secondaryItems = Array.prototype.slice.call( secondaryNav.querySelector('ul').children, 0 )
-                docFrag = document.createDocumentFragment();
+            var secondaryItems = Array.prototype.slice.call( oldSecondaryNav.querySelector('ul').children, 0 ),
+                docFrag = document.createDocumentFragment(),
                 item;
 
             
@@ -174,7 +167,7 @@
                 docFrag.appendChild( item )
             }
 
-            secondaryNav.parentNode.removeChild( secondaryNav );
+            oldSecondaryNav.parentNode.removeChild( oldSecondaryNav );
 
             _handle.parentNode.appendChild( docFrag );
 
@@ -182,36 +175,45 @@
 
         // default to our stylesheet
         _handle.style.visibility = "";
+        
+        // make sure its always the last one
+        _handle.parentNode.appendChild( _handle );
+
+        var items = Array.prototype.slice.call( _handle.parentNode.children, 0 ),
+            l = items.length,
+            i = 0;
 
         for ( ; l > i; i++ ) {
             item = items [ i ];
 
             // don't count it in
-            if ( item.classList.contains( "jb-nav-overflow__secondary_nav__handle" ) == true ) {
+            if ( _isHandle( item ) === true ) {
                 
                 continue;
             }
-
-            itemsWidth -= item.clientWidth;
+            
+            currentWidthLeft -= item.clientWidth;
 
             // best guess if the next item can fit on the first row of items with the more item
-            if ( itemsWidth - handleWidth <= handleWidth ) {
+            if ( lastOffsetTop != null && lastOffsetTop != item.offsetTop || currentWidthLeft <= 0 ) {
 
                 // insert the handle before the last visible item
                 _handle.parentNode.insertBefore( _handle, items[ i - 1] );
 
                 var secondaryNav = _getSecondaryNavTemplate.call( this ),
                     secondaryUl = secondaryNav.querySelector('ul'),
-                    appendToSecondary = Array.prototype.slice.call( items, i, items.length );
+                    appendToSecondary =  items.slice( i -1 , items.length );
                 
+
                 while( item = appendToSecondary.shift() ) {
-                    if ( item ) {
+                    
+                    if ( item && _isHandle( item ) === false ) {
                         secondaryUl.appendChild( item )
                         
                     }
                 }
                 
-
+                
                 //append to handle
                 _handle.appendChild( secondaryNav );
                 _handle.style.visibility = 'visible';
@@ -219,10 +221,12 @@
                 break;
             }
 
+            lastOffsetTop = item.offsetTop;
         }
 
         this.removeAttribute('refreshing' );
 
+        this.querySelector( '.jb-nav-overflow__items' ).style.height = '';
         // watch for changes
         this._resizeObserver.observe( this, observerConfig );
     }
