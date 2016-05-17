@@ -92,12 +92,13 @@
             subtree: true
         }
 
+
     // Fires when an instance of the element is created
     element.createdCallback = function() {
 
         this.setAttribute('refreshing', '')
         this._resizeObserver = new MutationObserver(function(){
-            this.setOverflow()
+            this.setOverflow();
         }.bind(this));
 
 
@@ -106,13 +107,26 @@
     // Fires when an instance was inserted into the document
     element.attachedCallback = function() {
 
+        // need to wait for the DOM to be completely parsed before we try to setup the overflow
+        if ( document.readyState != "complete" ) {
 
-         // has to be on a delay, otherwise the client height will be reported as 0
-        setTimeout( function(){
+            var readyCounter = setInterval(function(){
+
+                if ( document.readyState == "complete" ) {
+                    clearTimeout( readyCounter );
+
+                    this.setOverflow();
+                }
+
+            }.bind( this ), 10 );
+
+
+        } else {
             this.setOverflow();
+        }
 
 
-        }.bind( this ),100)
+
     };
 
     // Fires when an instance was removed from the document
@@ -131,7 +145,23 @@
 
     element.setOverflow = function(){
         
-        
+
+
+        var _handle = this.querySelector('.jb-nav-overflow__secondary_nav__handle');
+
+        if ( _handle === null ) {
+
+            // if we don't have a handle then we can't append the secondary nav to it
+            return;
+        }
+
+        var oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
+            lastOffsetTop = null,
+            handleWidth = _handle.clientWidth,
+            currentWidthLeft = _handle.parentNode.clientWidth - handleWidth, 
+            item;
+
+
         this.setAttribute('refreshing', '')
 
         // since we observe the substree, disconnect so we don't recursively  call this method
@@ -140,13 +170,6 @@
             this._resizeObserver.disconnect();
         }
 
-
-        var _handle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
-            oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
-            item,
-            lastOffsetTop = null,
-            handleWidth = _handle.clientWidth,
-            currentWidthLeft = _handle.parentNode.clientWidth - handleWidth; 
 
 
         // get all of the items in the secondary and append them to the primary
@@ -221,8 +244,6 @@
         }
 
         this.removeAttribute('refreshing' );
-
-        this.querySelector( '.jb-nav-overflow__items' ).style.height = '';
         // watch for changes
         this._resizeObserver.observe( this, observerConfig );
     }
