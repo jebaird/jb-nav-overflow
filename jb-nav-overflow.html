@@ -243,7 +243,13 @@
             lastOffsetTop = item.offsetTop;
         }
 
+        if ( secondaryUl === undefined ) {
+            // no overflow menu, hide the handle
+            _handle.style.visibility = "hidden";
+        }
+
         this.removeAttribute('refreshing' );
+
         // watch for changes
         this._resizeObserver.observe( this, observerConfig );
     }

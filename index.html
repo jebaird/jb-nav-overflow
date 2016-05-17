@@ -13,7 +13,7 @@
     <style type="text/css">
 
         body {
-            max-width: 400px;
+            max-width: 1000px;
         }
         ul {
             padding: 0;
@@ -70,6 +70,18 @@
         </template> -->
 
     </jb-nav-overflow>
+
+
+    <script type="text/javascript">
+    (function(){
+        window.addEventListener('resize', function(){
+            console.log( 'resize')
+            document.querySelector('jb-nav-overflow').setOverflow()
+        })
+    })();
+
+
+    </script>
 
 </body>
 </html>
