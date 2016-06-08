@@ -6,7 +6,7 @@
     <title>jb-nav-overflow</title>
 
     <!-- Imports polyfill -->
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <script src="node_modules/webcomponentsjs/micro.js"></script>
 
     <!-- Imports custom element -->
     <link rel="import" href="jb-nav-overflow.html">
@@ -31,6 +31,11 @@
 
         .jb-nav-overflow__secondary_nav {
             position: absolute;
+            background: #ccc;
+        }
+
+        .fixed-height {
+            height: 1em;
         }
     </style>
 
@@ -38,6 +43,7 @@
 <body>
 
     <h1>jb overflow menu demo </h1>
+
 
 
     <jb-nav-overflow>
@@ -64,6 +70,40 @@
 
 
     </nav>
+    <!-- if you need to override the markup for the secondary nav drop your markup here, needs to contain <ul> -->
+    <!--     <template class="jb-nav-overflow__secondary_nav__template">
+            <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>
+        </template> -->
+
+    </jb-nav-overflow>
+
+
+    <h2>Fixed nav height</h2>
+
+    <jb-nav-overflow class="fixed-height">
+        <nav>
+            <ul class="jb-nav-overflow__items myapps-navclass">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">resources</a></li>
+                <li><a href="#">Clients</a></li>
+                <li><a href="#">long Contact Us</a></li>
+                <li><a href="#">Homer 2</a></li>
+                <li><a href="#">About 2</a></li>
+                <li><a href="#">Clients 2</a></li>
+                <li><a href="#">Contact Us 2</a></li>
+                <li><a href="#">Home 3</a></li>
+                <li><a href="#">About 3</a></li>
+                <li><a href="#">Clients 3</a></li>
+                <li><a href="#">Contact Us 3</a></li>
+
+                <!-- this list item will only show up if there are items in the secondary nav -->
+                <li class="jb-nav-overflow__secondary_nav__handle">
+                    <a href="javascript://">More</a>
+                </li>
+            </ul>
+
+
+        </nav>
     <!-- if you need to override the markup for the secondary nav drop your markup here, needs to contain <ul> -->
     <!--     <template class="jb-nav-overflow__secondary_nav__template">
             <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>

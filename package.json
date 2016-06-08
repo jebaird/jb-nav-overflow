@@ -1,0 +1,31 @@
+{
+  "name": "jb-nav-overflow",
+  "version": "1.0.0",
+  "description": "custom element that detects if its childend can be displayed on the same line. If not it shoves the ones that do not in another menu",
+  "main": "jb-nav-overflow",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jebaird/jb-nav-overflow.git"
+  },
+  "keywords": [
+    "custom",
+    "element",
+    "navagation",
+    "overflow"
+  ],
+  "author": "Jesse Baird <jebaird@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jebaird/jb-nav-overflow/issues"
+  },
+  "homepage": "https://github.com/jebaird/jb-nav-overflow#readme",
+  "devDependencies": {
+    "codeceptjs": "^0.3.5"
+  },
+  "dependencies": {
+    "webcomponentsjs": "^1.0.2"
+  }
+}
