@@ -22,9 +22,6 @@
     "url": "https://github.com/jebaird/jb-nav-overflow/issues"
   },
   "homepage": "https://github.com/jebaird/jb-nav-overflow#readme",
-  "devDependencies": {
-    "codeceptjs": "^0.3.5"
-  },
   "dependencies": {
     "webcomponentsjs": "^1.0.2"
   }
