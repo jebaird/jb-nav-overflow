@@ -6,7 +6,7 @@
     <title>jb-nav-overflow</title>
 
     <!-- Imports polyfill -->
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <script src="node_modules/webcomponentsjs/micro.js"></script>
 
     <!-- Imports custom element -->
     <link rel="import" href="jb-nav-overflow.html">
@@ -31,6 +31,19 @@
 
         .jb-nav-overflow__secondary_nav {
             position: absolute;
+            background: #ccc;
+            margin-top: 10px;
+        }
+        .jb-nav-overflow__secondary_nav li {
+            display: block;
+        }
+
+        .fixed-height {
+            height: 1em;
+        }
+
+        .jb-nav-overflow__secondary_nav__handle > a {
+            color: red;
         }
     </style>
 
@@ -39,18 +52,23 @@
 
     <h1>jb overflow menu demo </h1>
 
+    <button id="remove">remove item</button>
+    <button id="add">add item</button>
+
+    <hr>
+
 
     <jb-nav-overflow>
     <nav>
         <ul class="jb-nav-overflow__items myapps-navclass">
             <li><a href="#">Home</a></li>
-            <li><a href="#">resources</a></li>
+            <li><a href="#">Resources</a></li>
             <li><a href="#">Clients</a></li>
             <li><a href="#">long Contact Us</a></li>
             <li><a href="#">Homer 2</a></li>
             <li><a href="#">About 2</a></li>
             <li><a href="#">Clients 2</a></li>
-            <li><a href="#">Contact Us 2</a></li>
+            <li><a href="#">Long Contact Us 2</a></li>
             <li><a href="#">Home 3</a></li>
             <li><a href="#">About 3</a></li>
             <li><a href="#">Clients 3</a></li>
@@ -72,11 +90,37 @@
     </jb-nav-overflow>
 
 
+    <h2>Fixed nav height</h2>
+
+    
+
+
     <script type="text/javascript">
     (function(){
         window.addEventListener('resize', function(){
             console.log( 'resize')
             document.querySelector('jb-nav-overflow').setOverflow()
+            
+        })
+
+        document.querySelector('#add').addEventListener('click', function(){
+
+            var li = document.createElement('li');
+
+            li.innerHTML = '<a href="javascript://" style="color: red">Added </a>';
+
+            console.log( document.querySelector('ul') )
+
+            document.querySelector('ul').appendChild( li )
+
+        })
+
+        document.querySelector('#remove').addEventListener('click', function(){
+
+            var li = document.querySelector('jb-nav-overflow ul li');
+
+            li.parentNode.removeChild( li )
+
         })
     })();
 

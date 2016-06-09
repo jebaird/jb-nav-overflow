@@ -27,15 +27,16 @@
 
     jb-nav-overflow {
         display: block;
+        position: relative;
     }
 
     jb-nav-overflow[refreshing], {
-        overflow: hidden;
+        /*overflow: hidden;*/
     }
 
     jb-nav-overflow[refreshing],
     .jb-nav-overflow__secondary_nav__handle {
-        visibility: hidden;
+        /*visibility: hidden;*/
 
     }
 
@@ -81,15 +82,6 @@
 
 
             return _currentScript.ownerDocument.importNode( template.content, true );
-        },
-        _isHandle = function( element ){
-            return element.classList.contains( "jb-nav-overflow__secondary_nav__handle" );
-        },
-
-        observerConfig = {
-            childList: true, 
-            characterData: true,
-            subtree: true
         }
 
 
@@ -145,25 +137,31 @@
     element.setOverflow = function(){
         
 
+        var makeArray = function( a ) {
+            return Array.prototype.slice.call( a, 0 );
+        }
 
         var _handle = this.querySelector('.jb-nav-overflow__secondary_nav__handle');
 
         if ( _handle === null || this.hasAttribute( 'refreshing' ) === true ) {
-
+            console.log('refreshing returning')
             // if we don't have a handle then we can't append the secondary nav to it
-            return;
+            //return;
         }
 
         var oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
-            handleWidth = _handle.clientWidth,
-            widthLeft = handleWidth, 
+            
             item;
+
+        console.log( 'handleWidth', _handle.offsetWidth, _handle.clientWidth )
 
 
         this.setAttribute('refreshing', '' );
         
         // default to our stylesheet
         _handle.style.visibility = "";
+
+        _handle.parentNode.insertBefore( _handle, _handle.parentNode.firstChild );
         
         // since we observe the substree, disconnect so we don't recursively  call this method
         if ( this._resizeObserver ){
@@ -176,7 +174,7 @@
         // get all of the items in the secondary and append them to the primary
         if ( oldSecondaryNav ) {
 
-            var secondaryItems = Array.prototype.slice.call( oldSecondaryNav.querySelector('ul').children, 0 ),
+            var secondaryItems = makeArray( oldSecondaryNav.querySelector('ul').children, 0 ),
                 docFrag = document.createDocumentFragment(),
                 item;
 
@@ -187,56 +185,65 @@
 
             oldSecondaryNav.parentNode.removeChild( oldSecondaryNav );
 
-            _handle.parentNode.insertBefore( docFrag, _handle );
+            _handle.parentNode.insertBefore( docFrag, _handle.parentNode.lastChild );
 
         }
 
-        // default to our stylesheet
-        _handle.style.visibility = "";
+
         
 
-        var items = Array.prototype.slice.call( _handle.parentNode.children, 0 ),
-            l = items.length,
-            i = 0;
+        var items = makeArray( _handle.parentNode.children, 0 );
 
-        for ( ; l > i; i++ ) {
-            item = items [ i ];
+        var lastOfsetTop = null;
 
-            // don't count it in
-            if ( _isHandle( item ) === true ) {
-                
-                continue;
-            }
-            
-            widthLeft += item.clientWidth;
+        items = items.filter( function( element ){ 
 
-            // best guess if the next item can fit on the first row of items with the more item
-            if ( widthLeft >= _handle.parentNode.clientWidth  ) {
+                    if ( lastOfsetTop == null ) {
+                        lastOfsetTop = element.offsetTop
+                    }
+                    
+                    
+                    
+                    return (
+                            element.classList.contains( 'jb-nav-overflow__secondary_nav__handle' ) === false &&
+                            lastOfsetTop !== element.offsetTop
+                        );
+            }, this );
+
+        
+        console.log( 'to append to item length', items.length )
+        
+
+
+        // check the width of the last item.offsetWidth if its bigger than the _handel width, then append it?
+
+        //if ()
 
                 // insert the handle before the last visible item
-                _handle.parentNode.insertBefore( _handle, items[ i ] );
+       // _handle.parentNode.insertBefore( _handle, items[ items.length ] );
 
-                var secondaryNav = _getSecondaryNavTemplate.call( this ),
-                    secondaryUl = secondaryNav.querySelector('ul'),
-                    
-                    // the last item in the list should be the handle, exclude it
-                    appendToSecondary =  items.slice( i , items.length - 1 );
-                
+        var secondaryNav = _getSecondaryNavTemplate.call( this ),
+            secondaryUl = secondaryNav.querySelector('ul');
+            
+            
+        
 
-                while( item = appendToSecondary.shift() ) {
-                    secondaryUl.appendChild( item )
-                }
-                
-                
-                //append to handle
-                _handle.appendChild( secondaryNav );
-                _handle.style.visibility = 'visible';
+        while( item = items.shift() ) {
+            console.log( item )
+            secondaryUl.appendChild( item )
+        }
+        
+        _handle.parentNode.insertBefore( _handle, _handle.parentNode.lastChild );
+        
+        //append to handle
+        _handle.appendChild( secondaryNav );
+        _handle.style.visibility = 'visible';
 
-                break;
-            }
+
+
 
             
-        }
+        
 
         if ( secondaryUl === undefined ) {
             // no overflow menu, hide the handle
@@ -246,7 +253,11 @@
         this.removeAttribute('refreshing' );
 
         // watch for changes
-        this._resizeObserver.observe( this, observerConfig );
+        this._resizeObserver.observe( this, {
+            childList: true, 
+            characterData: true,
+            subtree: true
+        } );
     }
 
     // Registers custom element
