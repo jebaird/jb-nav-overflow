@@ -84,16 +84,8 @@
     // Fires when an instance was inserted into the document
     element.attachedCallback = function() {
         
-        
-
-        var secondaryMenuHandle = this.querySelector( '.jb-nav-overflow__secondary_nav__handle' );
-
-        if ( secondaryMenuHandle == null ) {
-            // hard to have an overflow menu if we don't have a way of accessing it
-            return;
-        }
-
-        secondaryMenuHandle.appendChild( this._getTemplate() );
+        // apply the template to the element
+        this.querySelector( '.jb-nav-overflow__secondary_nav__handle' ).appendChild( this._getTemplate() );
 
 
         // need to wait for the DOM to be completely parsed before we try to setup the overflow
@@ -121,23 +113,16 @@
     // Fires when an instance was removed from the document
     element.detachedCallback = function() {
 
-        if ( this._resizeObserver ){
-
-            this._resizeObserver.disconnect();
-        }
+        this._resizeObserver.disconnect();
+        
     };
 
     // Fires when an attribute was added, removed, or updated
-    element.attributeChangedCallback = function(attr, oldVal, newVal) {};
-
+    //element.attributeChangedCallback = function(attr, oldVal, newVal) {};
 
 
     element.setOverflow = function(){
         
-        
-
-        
-
         var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
             primaryNav = secondaryMenuHandle.parentNode,
             secondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
@@ -157,17 +142,14 @@
 
         this.setAttribute('refreshing', '' );
         
-            // default to stylesheet
-            secondaryMenuHandle.style.display = "";
+        // default to stylesheet
+        secondaryMenuHandle.style.display = "";
 
+        // make the handle the first child in the menu, makes for easy calculation on which elements are in the first row
         primaryNav.insertBefore( secondaryMenuHandle, primaryNav.firstChild );
         
         // since we observe the substree, disconnect so we don't recursively  call this method
-        if ( this._resizeObserver ){
-
-            this._resizeObserver.disconnect();
-        }
-
+        this._resizeObserver.disconnect();
 
         if( secondaryItems.length ) {
             
@@ -178,8 +160,7 @@
             // get all of the items in the secondary and append them to the primary
             primaryNav.insertBefore( docFrag, primaryNav.lastChild );
 
-            // release any references
-            secondaryItems = null;
+        
         }
         
 
@@ -220,6 +201,11 @@
 
         // done updating 
         this.removeAttribute('refreshing' );
+
+
+        // release any references
+        secondaryMenuHandle = primaryNav = secondaryNav = secondaryItems = docFrag = items = item = null;
+        
 
         // watch for changes so we know when to call overflow again
         this._resizeObserver.observe( this, {
