@@ -7,19 +7,18 @@
     licensed under the MIT 
 
 
-    Order of events 
-
-        get the secondary handle width,
-        get the first items height, set the height of the primary ul
-        get the index of children that are not on the first line
+    # Order of events 
 
         issue refreshed event ?
             
         call setOverflow on
-            * window resize?
             * content changed
             * child appended 
+    
+    # States
 
+    * unresolved - gets applied when the element is created, prevents FOUS
+    * refreshing - applied when the element calculates which items go into the secondary menu
     
 -->
 
@@ -34,11 +33,10 @@
         opacity: 0;
     }
 
-    jb-nav-overflow[refreshing],
-    .jb-nav-overflow__secondary_nav__handle {
+    jb-nav-overflow[refreshing] {
         visibility: hidden;
-
     }
+
 
 </style>
 
@@ -74,14 +72,7 @@
     // Fires when an instance of the element is created
     element.createdCallback = function() {
 
-        var secondaryMenuHandle = this.querySelector( '.jb-nav-overflow__secondary_nav__handle' );
-
-        if ( secondaryMenuHandle == null ) {
-            // hard to have an overflow menu if we don't have a way of accessing it
-            return;
-        }
-
-        secondaryMenuHandle.appendChild( this._getTemplate() );
+        this.setAttribute( 'unresolved', '' );
 
         this._resizeObserver = new MutationObserver(function(){
             this.setOverflow();
@@ -93,7 +84,17 @@
     // Fires when an instance was inserted into the document
     element.attachedCallback = function() {
         
-        this.setAttribute( 'unresolved', '' );
+        
+
+        var secondaryMenuHandle = this.querySelector( '.jb-nav-overflow__secondary_nav__handle' );
+
+        if ( secondaryMenuHandle == null ) {
+            // hard to have an overflow menu if we don't have a way of accessing it
+            return;
+        }
+
+        secondaryMenuHandle.appendChild( this._getTemplate() );
+
 
         // need to wait for the DOM to be completely parsed before we try to setup the overflow
         if ( document.readyState != "complete" ) {
@@ -140,6 +141,12 @@
         var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
             primaryNav = secondaryMenuHandle.parentNode,
             secondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
+
+            secondaryItems = this._makeArray( secondaryNav.querySelector('ul').children, 0 ),
+
+            // used to append items to and from the primary -> secondary nav
+            docFrag = document.createDocumentFragment(),
+            items,
             item;
 
         if ( secondaryMenuHandle === null || this.hasAttribute( 'refreshing' ) === true ) {
@@ -150,8 +157,8 @@
 
         this.setAttribute('refreshing', '' );
         
-        // default to our stylesheet
-        secondaryMenuHandle.style.visibility = "";
+            // default to stylesheet
+            secondaryMenuHandle.style.display = "";
 
         primaryNav.insertBefore( secondaryMenuHandle, primaryNav.firstChild );
         
@@ -161,11 +168,6 @@
             this._resizeObserver.disconnect();
         }
 
-
-
-
-        var secondaryItems = this._makeArray( secondaryNav.querySelector('ul').children, 0 ),
-            docFrag = document.createDocumentFragment();
 
         if( secondaryItems.length ) {
             
@@ -182,16 +184,16 @@
         
 
 
-        var items = this._makeArray( primaryNav.children, 0 )
-                    .filter( function( element, index, array ){ 
+        items = this._makeArray( primaryNav.children, 0 )
+            .filter( function( element, index, array ){ 
 
-                    return (
-                            // don't include the secondary menu handle as part of the items
-                            element.classList.contains( 'jb-nav-overflow__secondary_nav__handle' ) === false &&
+                return (
+                        // don't include the secondary menu handle as part of the items
+                        element.classList.contains( 'jb-nav-overflow__secondary_nav__handle' ) === false &&
 
-                            // is this element on the same row as the first element in the menu?
-                            array[ 0 ].offsetTop !== element.offsetTop
-                        );
+                        // is this element on the same row as the first element in the menu?
+                        array[ 0 ].offsetTop !== element.offsetTop
+                    );
             } );
 
         // do we have items to append to the secondary nav?
@@ -207,10 +209,11 @@
             
             // move the handle so it's the last item on the list
             primaryNav.insertBefore( secondaryMenuHandle, primaryNav.lastChild );
-            
-            secondaryMenuHandle.style.visibility = 'visible';
 
+        
+        } else {
             
+            secondaryMenuHandle.style.display = "none";
         }
         // makes the element resolved, hack for no support for :unresolved
         this.removeAttribute( 'unresolved' );
@@ -238,7 +241,7 @@
     element._getTemplate = function(){
         
         //look for template override in this element
-        var template = this.querySelector('.jb-nav-overflow__secondary_nav__getTemplate');
+        var template = this.querySelector('.jb-nav-overflow__secondary_nav__template');
 
         if ( !template ) {
             template = _currentScript.ownerDocument.querySelector( '#jb-nav-overflow-template' );
