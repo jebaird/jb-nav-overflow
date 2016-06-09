@@ -11,7 +11,7 @@
 
         issue refreshed event ?
             
-        call setOverflow on
+        call refresh on
             * content changed
             * child appended 
     
@@ -75,7 +75,7 @@
         this.setAttribute( 'unresolved', '' );
 
         this._resizeObserver = new MutationObserver(function(){
-            this.setOverflow();
+            this.refresh();
         }.bind(this));
 
 
@@ -96,14 +96,14 @@
                 if ( document.readyState == "complete" ) {
                     clearTimeout( readyCounter );
 
-                    this.setOverflow();
+                    this.refresh();
                 }
 
             }.bind( this ), 10 );
 
 
         } else {
-            this.setOverflow();
+            this.refresh();
         }
 
 
@@ -121,7 +121,7 @@
     //element.attributeChangedCallback = function(attr, oldVal, newVal) {};
 
 
-    element.setOverflow = function(){
+    element.refresh = function(){
         
         var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
             primaryNav = secondaryMenuHandle.parentNode,
