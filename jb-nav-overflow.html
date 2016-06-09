@@ -132,7 +132,8 @@
 
         var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
             primaryNav = secondaryMenuHandle.parentNode,
-            oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav');
+            oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
+            item;
 
         if ( secondaryMenuHandle === null || this.hasAttribute( 'refreshing' ) === true ) {
             // if we don't have a handle then we can't append the secondary nav to it
@@ -158,8 +159,7 @@
         if ( oldSecondaryNav ) {
 
             var secondaryItems = this._makeArray( oldSecondaryNav.querySelector('ul').children, 0 ),
-                docFrag = document.createDocumentFragment(),
-                item;
+                docFrag = document.createDocumentFragment();
 
             
             while ( item = secondaryItems.shift () ) {
@@ -178,28 +178,23 @@
 
         
 
-        var items = this._makeArray( primaryNav.children, 0 );
+        var items = this._makeArray( primaryNav.children, 0 )
 
-        var lastOfsetTop = null;
+                    .filter( function( element, index, array ){ 
 
-        items = items.filter( function( element ){ 
-
-                    if ( lastOfsetTop == null ) {
-                        lastOfsetTop = element.offsetTop
-                    }
-                    
-                    
-                    
                     return (
+                            // don't include the secondary menu handle as part of the items
                             element.classList.contains( 'jb-nav-overflow__secondary_nav__handle' ) === false &&
-                            lastOfsetTop !== element.offsetTop
+
+                            // is this element on the same row as the first element in the menu?
+                            array[ 0 ].offsetTop !== element.offsetTop
                         );
-            }, this );
+            } );
 
 
 
-        var secondaryNav = this._template(),
-            secondaryUl = secondaryNav.querySelector('ul');
+        var template = this._template(),
+            secondaryUl = template.querySelector('ul');
             
             
         
@@ -211,7 +206,7 @@
         primaryNav.insertBefore( secondaryMenuHandle, primaryNav.lastChild );
         
         //append to handle
-        secondaryMenuHandle.appendChild( secondaryNav );
+        secondaryMenuHandle.appendChild( template );
         secondaryMenuHandle.style.visibility = 'visible';
 
 
