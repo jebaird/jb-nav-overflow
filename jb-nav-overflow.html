@@ -44,14 +44,14 @@
 
 
 <!-- 
-    This template can be "overriden " by prodving the following a template tag with the class of jb "b-nav-overflow__secondary_nav__template"
+    This template can be "overriden " by prodving the following a template tag with the class of jb "b-nav-overflow__secondary_nav__getTemplate"
     in the root of this element
     
     IE
 
     <jb-nav-overflow>
 
-        <template class="jb-nav-overflow__secondary_nav__template">
+        <template class="jb-nav-overflow__secondary_nav__getTemplate">
             <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>
         </template> 
     <jb-nav-overflow>
@@ -74,7 +74,14 @@
     // Fires when an instance of the element is created
     element.createdCallback = function() {
 
-        
+        var secondaryMenuHandle = this.querySelector( '.jb-nav-overflow__secondary_nav__handle' );
+
+        if ( secondaryMenuHandle == null ) {
+            // hard to have an overflow menu if we don't have a way of accessing it
+            return;
+        }
+
+        secondaryMenuHandle.appendChild( this._getTemplate() );
 
         this._resizeObserver = new MutationObserver(function(){
             this.setOverflow();
@@ -132,7 +139,7 @@
 
         var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle'),
             primaryNav = secondaryMenuHandle.parentNode,
-            oldSecondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
+            secondaryNav = this.querySelector('.jb-nav-overflow__secondary_nav'),
             item;
 
         if ( secondaryMenuHandle === null || this.hasAttribute( 'refreshing' ) === true ) {
@@ -155,31 +162,27 @@
         }
 
 
-        // do we have a secondary nav?
-        if ( oldSecondaryNav ) {
 
-            var secondaryItems = this._makeArray( oldSecondaryNav.querySelector('ul').children, 0 ),
-                docFrag = document.createDocumentFragment();
 
+        var secondaryItems = this._makeArray( secondaryNav.querySelector('ul').children, 0 ),
+            docFrag = document.createDocumentFragment();
+
+        if( secondaryItems.length ) {
             
             while ( item = secondaryItems.shift () ) {
-                docFrag.appendChild( item )
+                docFrag.appendChild( item );
             }
-
-            oldSecondaryNav.parentNode.removeChild( oldSecondaryNav );
-            oldSecondaryNav = null;
-
             
             // get all of the items in the secondary and append them to the primary
             primaryNav.insertBefore( docFrag, primaryNav.lastChild );
 
+            // release any references
+            secondaryItems = null;
         }
-
-
         
 
-        var items = this._makeArray( primaryNav.children, 0 )
 
+        var items = this._makeArray( primaryNav.children, 0 )
                     .filter( function( element, index, array ){ 
 
                     return (
@@ -191,34 +194,28 @@
                         );
             } );
 
+        // do we have items to append to the secondary nav?
+        if ( items.length ) {
 
+            while( item = items.shift() ) {
 
-        var template = this._template(),
-            secondaryUl = template.querySelector('ul');
+                docFrag.appendChild( item );
+            }
+
+            // append to the ul
+            secondaryNav.querySelector('ul').appendChild( docFrag );
             
+            // move the handle so it's the last item on the list
+            primaryNav.insertBefore( secondaryMenuHandle, primaryNav.lastChild );
             
-        
+            secondaryMenuHandle.style.visibility = 'visible';
 
-        while( item = items.shift() ) {
-            secondaryUl.appendChild( item )
+            
         }
-        
-        primaryNav.insertBefore( secondaryMenuHandle, primaryNav.lastChild );
-        
-        //append to handle
-        secondaryMenuHandle.appendChild( template );
-        secondaryMenuHandle.style.visibility = 'visible';
-
-
-
-
-
-        if ( secondaryUl === undefined ) {
-            // no overflow menu, hide the handle
-            secondaryMenuHandle.style.visibility = "hidden";
-        }
-
+        // makes the element resolved, hack for no support for :unresolved
         this.removeAttribute( 'unresolved' );
+
+        // done updating 
         this.removeAttribute('refreshing' );
 
         // watch for changes so we know when to call overflow again
@@ -237,10 +234,11 @@
     }
 
 
-    element._template = function(){
+
+    element._getTemplate = function(){
         
         //look for template override in this element
-        var template = this.querySelector('.jb-nav-overflow__secondary_nav__template');
+        var template = this.querySelector('.jb-nav-overflow__secondary_nav__getTemplate');
 
         if ( !template ) {
             template = _currentScript.ownerDocument.querySelector( '#jb-nav-overflow-template' );
