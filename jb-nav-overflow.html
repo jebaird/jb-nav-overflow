@@ -29,8 +29,11 @@
         display: block;
     }
 
-    /*jb-nav-overflow[unresolved],*/
-    jb-nav-overflow:unresolved,
+    /* why not use :unresolved ? it works in chrome but not firefox */
+    jb-nav-overflow[unresolved]{
+        opacity: 0;
+    }
+
     jb-nav-overflow[refreshing],
     .jb-nav-overflow__secondary_nav__handle {
         visibility: hidden;
@@ -74,7 +77,7 @@
             var template = this.querySelector('.jb-nav-overflow__secondary_nav__template');
 
             if ( !template ) {
-                template =  _currentScript.ownerDocument.querySelector( '#jb-nav-overflow-template' );
+                template = _currentScript.ownerDocument.querySelector( '#jb-nav-overflow-template' );
             }
 
 
@@ -85,6 +88,8 @@
     // Fires when an instance of the element is created
     element.createdCallback = function() {
 
+        
+
         this._resizeObserver = new MutationObserver(function(){
             this.setOverflow();
         }.bind(this));
@@ -94,6 +99,8 @@
 
     // Fires when an instance was inserted into the document
     element.attachedCallback = function() {
+        
+        this.setAttribute( 'unresolved', '' );
 
         // need to wait for the DOM to be completely parsed before we try to setup the overflow
         if ( document.readyState != "complete" ) {
@@ -133,14 +140,15 @@
 
     element.setOverflow = function(){
         
+        
 
         var makeArray = function( a ) {
             return Array.prototype.slice.call( a, 0 );
         }
 
-        var _handle = this.querySelector('.jb-nav-overflow__secondary_nav__handle');
+        var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle');
 
-        if ( _handle === null || this.hasAttribute( 'refreshing' ) === true ) {
+        if ( secondaryMenuHandle === null || this.hasAttribute( 'refreshing' ) === true ) {
             console.log('refreshing returning')
             // if we don't have a handle then we can't append the secondary nav to it
             //return;
@@ -150,15 +158,15 @@
             
             item;
 
-        console.log( 'handleWidth', _handle.offsetWidth, _handle.clientWidth )
+        console.log( 'handleWidth', secondaryMenuHandle.offsetWidth, secondaryMenuHandle.clientWidth )
 
 
         this.setAttribute('refreshing', '' );
         
         // default to our stylesheet
-        _handle.style.visibility = "";
+        secondaryMenuHandle.style.visibility = "";
 
-        _handle.parentNode.insertBefore( _handle, _handle.parentNode.firstChild );
+        secondaryMenuHandle.parentNode.insertBefore( secondaryMenuHandle, secondaryMenuHandle.parentNode.firstChild );
         
         // since we observe the substree, disconnect so we don't recursively  call this method
         if ( this._resizeObserver ){
@@ -182,14 +190,14 @@
 
             oldSecondaryNav.parentNode.removeChild( oldSecondaryNav );
 
-            _handle.parentNode.insertBefore( docFrag, _handle.parentNode.lastChild );
+            secondaryMenuHandle.parentNode.insertBefore( docFrag, secondaryMenuHandle.parentNode.lastChild );
 
         }
 
 
         
 
-        var items = makeArray( _handle.parentNode.children, 0 );
+        var items = makeArray( secondaryMenuHandle.parentNode.children, 0 );
 
         var lastOfsetTop = null;
 
@@ -207,17 +215,7 @@
                         );
             }, this );
 
-        
-        console.log( 'to append to item length', items.length )
-        
 
-
-        // check the width of the last item.offsetWidth if its bigger than the _handel width, then append it?
-
-        //if ()
-
-                // insert the handle before the last visible item
-       // _handle.parentNode.insertBefore( _handle, items[ items.length ] );
 
         var secondaryNav = _getSecondaryNavTemplate.call( this ),
             secondaryUl = secondaryNav.querySelector('ul');
@@ -230,23 +228,22 @@
             secondaryUl.appendChild( item )
         }
         
-        _handle.parentNode.insertBefore( _handle, _handle.parentNode.lastChild );
+        secondaryMenuHandle.parentNode.insertBefore( secondaryMenuHandle, secondaryMenuHandle.parentNode.lastChild );
         
         //append to handle
-        _handle.appendChild( secondaryNav );
-        _handle.style.visibility = 'visible';
+        secondaryMenuHandle.appendChild( secondaryNav );
+        secondaryMenuHandle.style.visibility = 'visible';
 
 
 
 
-            
-        
 
         if ( secondaryUl === undefined ) {
             // no overflow menu, hide the handle
-            _handle.style.visibility = "hidden";
+            secondaryMenuHandle.style.visibility = "hidden";
         }
 
+        this.removeAttribute( 'unresolved' );
         this.removeAttribute('refreshing' );
 
         // watch for changes
