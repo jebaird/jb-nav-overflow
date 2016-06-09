@@ -54,41 +54,44 @@
 
     <button id="remove">remove item</button>
     <button id="add">add item</button>
+    <button id="removeInstance">remove menu from Dom</button>
 
     <hr>
 
 
 
-    <jb-nav-overflow>
-    <nav>
-        <ul class="myapps-navclass">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Resources</a></li>
-            <li><a href="#">Clients</a></li>
-            <li><a href="#">long Contact Us</a></li>
-            <li><a href="#">Homer 2</a></li>
-            <li><a href="#">About 2</a></li>
-            <li><a href="#">Clients 2</a></li>
-            <li><a href="#">Long Contact Us 2</a></li>
-            <li><a href="#">Home 3</a></li>
-            <li><a href="#">About 3</a></li>
-            <li><a href="#">Clients 3</a></li>
-            <li><a href="#">Contact Us 3</a></li>
+    <div>
+        <jb-nav-overflow>
+            <nav>
+                <ul class="myapps-navclass">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Resources</a></li>
+                    <li><a href="#">Clients</a></li>
+                    <li><a href="#">long Contact Us</a></li>
+                    <li><a href="#">Homer 2</a></li>
+                    <li><a href="#">About 2</a></li>
+                    <li><a href="#">Clients 2</a></li>
+                    <li><a href="#">Long Contact Us 2</a></li>
+                    <li><a href="#">Home 3</a></li>
+                    <li><a href="#">About 3</a></li>
+                    <li><a href="#">Clients 3</a></li>
+                    <li><a href="#">Contact Us 3</a></li>
 
-            <!-- this list item will only show up if there are items in the secondary nav -->
-            <li class="jb-nav-overflow__secondary_nav__handle">
-                <a href="javascript://">More</a>
-            </li>
-        </ul>
+                    <!-- this list item will only show up if there are items in the secondary nav -->
+                    <li class="jb-nav-overflow__secondary_nav__handle">
+                        <a href="javascript://">More</a>
+                    </li>
+                </ul>
 
 
-    </nav>
-    <!-- if you need to override the markup for the secondary nav drop your markup here, needs to contain <ul> -->
-    <!--     <template class="jb-nav-overflow__secondary_nav__template">
-            <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>
-        </template> -->
+            </nav>
+        <!-- if you need to override the markup for the secondary nav drop your markup here, needs to contain <ul> -->
+        <!--     <template class="jb-nav-overflow__secondary_nav__template">
+                <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>
+            </template> -->
 
-    </jb-nav-overflow>
+        </jb-nav-overflow>
+    </div>
 
 
 
@@ -103,6 +106,7 @@
 
         document.querySelector('#add').addEventListener('click', function(){
 
+            console.log( 'adding LI to menu')
             var li = document.createElement('li');
 
             li.innerHTML = '<a href="javascript://" style="color: red">Added </a>';
@@ -114,12 +118,25 @@
         })
 
         document.querySelector('#remove').addEventListener('click', function(){
-
+            console.log('removing a li from menu')
             var li = document.querySelector('jb-nav-overflow ul li');
 
             li.parentNode.removeChild( li )
 
         })
+
+
+
+        document.querySelector('#removeInstance').addEventListener('click', function(){
+
+            console.log('removed instance from dom')
+            document.querySelector('jb-nav-overflow').parentNode.innerHTML = "";
+
+            
+
+        })
+
+
     })();
 
 
