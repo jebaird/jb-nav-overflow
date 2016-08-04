@@ -45,6 +45,10 @@
         .jb-nav-overflow__secondary_nav__handle > a {
             color: red;
         }
+
+        .container {
+            position: relative;
+        }
     </style>
 
 </head>
@@ -59,8 +63,9 @@
     <hr>
 
 
+    <h2>Instance 1 </h2>
 
-    <div>
+    <div id="instance-1" class="container">
         <jb-nav-overflow>
             <nav>
                 <ul class="myapps-navclass">
@@ -93,6 +98,41 @@
         </jb-nav-overflow>
     </div>
 
+
+    <h2>Instance 2 </h2>
+
+    <div id="instance-2" class="container">
+        <jb-nav-overflow>
+            <nav>
+                <ul class="myapps-navclass">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Resources</a></li>
+                    <li><a href="#">Clients</a></li>
+                    <li><a href="#">long Contact Us</a></li>
+                    <li><a href="#">Homer 2</a></li>
+                    <li><a href="#">About 2</a></li>
+                    <li><a href="#">Clients 2</a></li>
+                    <li><a href="#">Long Contact Us 2</a></li>
+                    <li><a href="#">Home 3</a></li>
+                    <li><a href="#">About 3</a></li>
+                    <li><a href="#">Clients 3</a></li>
+                    <li><a href="#">Contact Us 3</a></li>
+
+                    <!-- this list item will only show up if there are items in the secondary nav -->
+                    <li class="jb-nav-overflow__secondary_nav__handle">
+                        <a href="javascript://">More</a>
+                    </li>
+                </ul>
+
+
+            </nav>
+        <!-- if you need to override the markup for the secondary nav drop your markup here, needs to contain <ul> -->
+        <!--     <template class="jb-nav-overflow__secondary_nav__template">
+                <nav class="jb-nav-overflow__secondary_nav this-is-an-override-test"><ul></ul></nav>
+            </template> -->
+
+        </jb-nav-overflow>
+    </div>
 
 
 
