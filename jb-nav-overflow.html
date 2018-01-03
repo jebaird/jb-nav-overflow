@@ -90,6 +90,10 @@
         
         // if its not supplied then don't bother trying to append it
         if ( secondaryMenuHandle === null ) {
+            
+            // since we don't have any items, just resolve the element
+            this.removeAttribute( 'unresolved' );
+
             return;
         }
 
