@@ -84,6 +84,8 @@
     // Fires when an instance was inserted into the document
     element.attachedCallback = function() {
         
+        // TODO: check if the _resizeObserver is observing 
+
         var secondaryMenuHandle = this.querySelector('.jb-nav-overflow__secondary_nav__handle');
         
         // if its not supplied then don't bother trying to append it
